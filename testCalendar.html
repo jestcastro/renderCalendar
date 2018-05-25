@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Hello World</title>
+    <style>
+            .table-container{
+                margin-top: 20px;
+                max-width: 254px;
+                background-color: gainsboro;
+            }
+           th{
+               text-align: center;
+                padding: 10px;
+            width:15px
+           }
+    </style>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+    class App extends React.Component {
+        constructor(props){
+            super(props);
+            this.state={ 
+                date: moment().format('YYYY-MM-DD'),
+                number: 15,
+                countryCode:'CR'
+            }
+            this.handleChange = this.handleChange.bind(this);
+        }
+        handleChange(e){
+            this.setState({[e.target.name]: e.target.value});
+        }
+        
+        render() {
+            const months=this.getDias();
+            console.log(months)
+            return (
+                <div>
+                    <input type='date' defaultValue={this.state.date} name="date" onChange={this.handleChange}/>
+                    <input type='number' defaultValue={this.state.number} name="number" onChange={this.handleChange}/>
+                    <input type='text' defaultValue={this.state.countryCode} name="countryCode" onChange={this.handleChange}/>
+                    {
+                        <div>
+                        {Object.keys(months).map(monthKey=>{
+                            const month=months[monthKey];
+                            return (
+                                <div className='table-container'>
+                                <div style={{textAlign:'center', position:'relative'}}>
+                                        {month.name}
+                                </div>
+
+                                <table>
+                                <tr>
+                                    <th>S</th>
+                                    <th>M</th> 
+                                    <th>T</th>
+                                    <th>W</th>
+                                    <th>T</th>
+                                    <th>F</th>
+                                    <th>S</th>
+                                </tr>
+                                </table>
+                                        {
+                                            this.renderWeeks(month.weeks)
+                                        }
+                                </div>
+                            )
+                        })}  
+                        </div>
+                    }
+                </div>
+            );
+        }
+        getStyle(key, day){
+            let style={ backgroundColor:'grey', padding: '10px'};
+            if(day){
+                if(key==6 || key==0){
+                     style.backgroundColor='yellow';
+                }else{
+                     style.backgroundColor='green';
+                }
+            }
+            return style;
+        }
+        renderWeeks(weeks){
+            return Object.keys(weeks).map(weekKey=>{
+                const week=weeks[weekKey];
+                return (
+                    <tr>
+                            {
+                                 Object.keys(week).map(key=>{
+                                        const day=week[key];
+                                        return (
+                                            
+                                            <td style={this.getStyle(key, day)}>
+                                                    {day && day.format('DD')}
+                                            </td>
+                                            
+                                            
+                                        )
+                                    })
+                            }
+                    </tr>
+                )
+            })
+        }
+        renderDay(days){
+            return Object.keys(weeks).map(weekKey=>{
+                const week=weeks[weekKey];
+                return (
+                    <div>
+                            {JSON.stringify(week)}
+                    </div>
+                )
+            })
+        }
+        getDias(){
+            let calendars={};
+            for (let i = 0; i < this.state.number; i++) {
+                const dayInfo=moment(this.state.date, 'YYYY-MM-DD').add(i, 'days');
+                const month=dayInfo.month();
+                const week=dayInfo.week();
+                const day=dayInfo.day();
+                if(!calendars[month]){
+                    calendars[month]={
+                        name:`${dayInfo.format('MMMM')} ${dayInfo.format('YYYY')}`,
+                        weeks:{}
+                    };
+                }
+                if(!calendars[month].weeks[week]){
+                    calendars[month].weeks[week]={0:null,1:null,2:null,3:null,4:null,5:null,6:null};
+                }
+                calendars[month].weeks[week][day]=dayInfo;
+            }
+            return calendars;
+        }
+    }
+
+
+    ReactDOM.render(
+        <App/>,
+        document.getElementById('root')
+    );
+
+    </script>
+</body>
+
+</html>
